@@ -1,78 +1,43 @@
-import './App.css';
-import { useState } from 'react';
-import CheckCircleTwoTone from '@ant-design/icons';
-import { List, Typography, Button, Input } from 'antd'
-const { Title } = Typography;
-const { TextArea } = Input
-const data = [
-  {
-    key: '1',
-    nameTodo: 'Todo 1',
-    date: "",
-    due_date: "",
-    completed: true,
-    important: true,
-    description: "Todo 1 description",
-    groupId: 1
-  },
-  {
-    key: '2',
-    nameTodo: 'Todo 2',
-    date: "",
-    due_date: "",
-    completed: true,
-    important: true,
-    description: "Todo 2 description",
-    groupId: 2
-  },
-  {
-    key: '3',
-    nameTodo: 'Todo 3 Todo 3 descriptionTodo 3 descriptionTodo 3 descriptionTodo 3 descriptionTodo 3 descriptionTodo 3 description',
-    date: "",
-    due_date: "",
-    completed: true,
-    important: true,
-    description: "Todo 3 description",
-    groupId: 4
-  },
-  {
-    key: '4',
-    nameTodo: 'Todo 4',
-    date: "",
-    due_date: "",
-    completed: true,
-    important: true,
-    description: "Todo 4 description",
-    groupId: 2
-  },
-];
+import React, { useState } from "react";
+import { Layout } from "antd";
+import TopicMenu from "./Components/TopicMenu";
+import "./App.css";
+import { SunOutlined,StarOutlined,CalendarOutlined,ProfileOutlined,CheckCircleOutlined, FireOutlined } from "@ant-design/icons";
+import NavBar from "./Components/NavBar/NavBar";
+import SideBar from "./Components/SideBar/SideBar";
 function App() {
-  const deleteTodo = (id) => {
-    //setTodos(todos.filter((todo) => todo.id !== id));
-  }
-  return (
+  const topics = [
+    {id:1 , name: "My day",icon:<SunOutlined/>},
+    {id:2 , name: "Important",icon:<StarOutlined/>},
+    {id:3 , name: "Planned",icon:<CalendarOutlined/>},
+    {id:4 , name: "All",icon:<ProfileOutlined/>},
+    {id:5 , name: "Compeleted",icon:<CheckCircleOutlined/>},
+    {id:6 , name: "Task",icon:<FireOutlined/>},
+  ];
+  const [contentIndex, setContentIndex] = useState(0);
+  const [selectedKey, setSelectedKey] = useState("");
+  const changeSelectedKey = (index,type) => {
+      setSelectedKey(type+index);
+  };
+  const Menu = (
     <>
-      <List
-        bordered
-        dataSource={data}
-        renderItem={(item) => (
-          <List.Item
-            actions={[
-              <Button type="primary" onClick={() => deleteTodo(item.key)}>
-                Delete
-              </Button>,
-            ]}
-          >
-            <div>
-              <div>{item.nameTodo}</div>
-              <div>{item.description}</div>
-              <div>{item.completed === true ? <CheckCircleTwoTone /> : ""}</div>
-
-            </div>
-          </List.Item>
-        )}
+      <TopicMenu
+        topics={topics}
+        selectedKey={selectedKey}
+        changeSelectedKey={changeSelectedKey}
       />
     </>
+    
+  );
+  return (
+    <div className="App">
+      <Layout>
+        <SideBar menu={Menu} />
+        <Layout.Content className="content">
+          {selectedKey}
+        </Layout.Content>
+      </Layout>
+    </div>
   );
 }
 
