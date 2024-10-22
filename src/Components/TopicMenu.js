@@ -11,8 +11,8 @@ const MergeListTodo = [
             {keyList: 3,name:"TodoList3"},
         ]
     },
-    {keyList: 7,name:"Todolist2"},
-    {keyList: 6,name:"Todolist2"},
+    {keyList: 7,name:"Todolist7"},
+    {keyList: 6,name:"Todolist6"},
     {keyMerge:2, nameMerge:"abc2",
         children:[
             {keyList: 8,name:"TodoList8"},
@@ -20,11 +20,11 @@ const MergeListTodo = [
             {keyList: 10,name:"TodoList10"},
         ]
     },
-    {keyList: 4,name:"TodoList1"},
-    {keyList: 5,name:"Todolist2"},
-    {keyList: 11,name:"TodoList8"},
-    {keyList: 12,name:"Todolist9"},
-    {keyList: 13,name:"TodoList10"},
+    {keyList: 4,name:"TodoList4"},
+    {keyList: 5,name:"Todolist5"},
+    {keyList: 11,name:"TodoList11"},
+    {keyList: 12,name:"Todolist12"},
+    {keyList: 13,name:"TodoList13"},
 ];
 const TopicMenu = ({ topics, selectedKey, changeSelectedKey }) => {
     const CheckMerge=(key)=>{
@@ -49,7 +49,7 @@ const TopicMenu = ({ topics, selectedKey, changeSelectedKey }) => {
             {MergeListTodo.map((item,index)=>{
                 if(item.keyList){
                     return(
-                        <Menu.Item key={index} onClick={()=>changeSelectedKey(index,"todo")}>
+                        <Menu.Item key={"todo"+item.keyList} onClick={()=>changeSelectedKey(item.keyList,"todoList")}>
                             <TodoList nameListTodo={item.name}/>
                         </Menu.Item>
                     )
@@ -57,8 +57,9 @@ const TopicMenu = ({ topics, selectedKey, changeSelectedKey }) => {
                     return(
                         <SubMenu key={"list"+ index + item.keyMerge} title={CheckMerge(item.keyMerge)}>
                             {item.children && item.children.map((list,index)=>{
+                                console.log("check list",list);            
                                 return(
-                                    <Menu.Item key={index} onClick={()=>changeSelectedKey(index,"todo")}>
+                                    <Menu.Item key={"todo"+ list.keyList} onClick={()=>changeSelectedKey(list.keyList,"todoList")}>
                                         <TodoList nameListTodo={list.name}></TodoList>
                                     </Menu.Item>
                                 )   

@@ -3,8 +3,8 @@ import { Layout } from "antd";
 import TopicMenu from "./Components/TopicMenu";
 import "./App.css";
 import { SunOutlined,StarOutlined,CalendarOutlined,ProfileOutlined,CheckCircleOutlined, FireOutlined } from "@ant-design/icons";
-import NavBar from "./Components/NavBar/NavBar";
 import SideBar from "./Components/SideBar/SideBar";
+import ListTodo from "./Components/Todo/ContainerListTodo/ListTodo";
 function App() {
   const topics = [
     {id:1 , name: "My day",icon:<SunOutlined/>},
@@ -34,7 +34,11 @@ function App() {
       <Layout>
         <SideBar menu={Menu} />
         <Layout.Content className="content">
-          {selectedKey}
+          {selectedKey && selectedKey.includes("default") &&
+            <div>
+              <ListTodo/>
+            </div>
+          }
         </Layout.Content>
       </Layout>
     </div>
