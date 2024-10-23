@@ -1,45 +1,36 @@
-import React, { useState } from "react";
+import React from "react";
 import { Layout } from "antd";
-import TopicMenu from "./Components/TopicMenu";
 import "./App.css";
-import { SunOutlined,StarOutlined,CalendarOutlined,ProfileOutlined,CheckCircleOutlined, FireOutlined } from "@ant-design/icons";
+import {StarOutlined,CloseCircleOutlined,ProfileOutlined,CheckCircleOutlined } from "@ant-design/icons";
 import SideBar from "./Components/SideBar/SideBar";
 import ListTodo from "./Components/Todo/ContainerListTodo/ListTodo";
+import {useSelector} from 'react-redux'
+import DetailTodo from "./Components/DetailTodo/DetailTodo";
 function App() {
-  const topics = [
-    {id:1 , name: "My day",icon:<SunOutlined/>},
-    {id:2 , name: "Important",icon:<StarOutlined/>},
-    {id:3 , name: "Planned",icon:<CalendarOutlined/>},
-    {id:4 , name: "All",icon:<ProfileOutlined/>},
-    {id:5 , name: "Compeleted",icon:<CheckCircleOutlined/>},
-    {id:6 , name: "Task",icon:<FireOutlined/>},
+  const items = [
+    {key:"d04" , label: "All",icon:<ProfileOutlined/>},
+    {key:"d02" , label: "Important",icon:<StarOutlined/>},
+    {key:"d05" , label: "Compeleted",icon:<CheckCircleOutlined/>},
+    {key:"d03" , label: "Uncompeleted",icon:<CloseCircleOutlined />},
   ];
-  const [contentIndex, setContentIndex] = useState(0);
-  const [selectedKey, setSelectedKey] = useState("");
-  const changeSelectedKey = (index,type) => {
-      setSelectedKey(type+index);
-  };
-  const Menu = (
-    <>
-      <TopicMenu
-        topics={topics}
-        selectedKey={selectedKey}
-        changeSelectedKey={changeSelectedKey}
-      />
-    </>
-    
-  );
+  const {selectedMenuKey} = useSelector((state)=>({
+    selectedMenuKey: state.app.selectedMenuKey
+  }))
+  const getItemBySelectedMenuKey = () =>{
+    return items.find(item=> item.key === selectedMenuKey)
+  }
   return (
     <div className="App">
       <Layout>
-        <SideBar menu={Menu} />
+        <SideBar items={items}/>
         <Layout.Content className="content">
-          {selectedKey && selectedKey.includes("default") &&
+          {selectedMenuKey && selectedMenuKey.includes("d") &&
             <div>
-              <ListTodo/>
+              <ListTodo item={getItemBySelectedMenuKey()} />
             </div>
           }
         </Layout.Content>
+        <DetailTodo/>
       </Layout>
     </div>
   );

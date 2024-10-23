@@ -1,0 +1,19 @@
+.icon-item{
+    margin: 10px;
+}
+.menu-todo{
+    height: 90vh !important;
+    overflow-y:auto;
+    
+}
+.header-menu{
+    height: 4vh;
+    display: flex;
+    padding-left: 24px;
+    margin:0.5vh 0;
+}
+.footer-menu{
+    height: 4vh;
+    padding-left: 24px;
+    margin:0.5vh 0;
+}

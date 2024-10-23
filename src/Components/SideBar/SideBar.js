@@ -1,16 +1,25 @@
 import React from "react";
 import { Layout } from "antd";
 import "./SideBar.css"
-const SideBar = ({ menu }) => {
+import MenuApp from "./Menu/MenuApp";
+import { useSelector,useDispatch } from "react-redux";
+import { changeCollapseMenu } from "../../Redux/Slices/appSlice";
+const SideBar = ({ items }) => {
+  const {collapseMenu} = useSelector((state)=>({
+    collapseMenu: state.app.collapseMenu
+  }))
+  const dispatch = useDispatch();
   return (
     <Layout.Sider
       className="sidebar"
       breakpoint={"lg"}
       theme="light"
-      collapsedWidth={0}
       trigger={null}
+      collapsible
+      collapsed={collapseMenu}
+      onCollapse={(value)=>dispatch(changeCollapseMenu(value))}
     >
-        {menu}
+        <MenuApp items={items}/>
     </Layout.Sider>
   );
 };

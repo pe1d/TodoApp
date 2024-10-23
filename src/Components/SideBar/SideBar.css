@@ -1,4 +1,8 @@
 .sidebar {
-    height: 1000px;
+    height: 100vh;
     margin-right: 24px;
+}
+.sidebar-right{
+    height: 100vh;
+    margin-left:24px ;
 }

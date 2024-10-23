@@ -1,27 +1,54 @@
 import { put, select, take, takeEvery, takeLatest } from "redux-saga/effects";
-import { getTodoList, getTodoListSusccess, getTodoListFail, addNewTodo, removeTodo } from "../Slices/todoSlice";
+import { getListTodo, getListTodoSusccess, getListTodoFail, 
+    addNewTodo, removeTodo, getListTodoGroupSusccess, 
+    getListTodoGroupFail, addNewTodoGroup, removeTodoGroup, getListTodoGroup } from "../Slices/todoSlice";
 
-
-function* loadTodoListSaga() {
+function* loadListTodoSaga() {
     try {
-        const todoList = JSON.parse(localStorage.getItem("todoList")) || [];
-        yield put(getTodoListSusccess(todoList));
+        const listTodo = JSON.parse(localStorage.getItem("listTodo")) || [];
+        yield put(getListTodoSusccess(listTodo));
     } catch (e) {
-        yield put(getTodoListFail(e.message))
+        yield put(getListTodoFail(e.message))
     }
 }
-
-function* saveTodoSaga() {
-    const todoList = yield select(state => state.todo.todoList)
-    localStorage.setItem('todoList', JSON.stringify(todoList))
+function* loadListTodoGroupSaga() {
+    try {
+        const listTodoGroup = JSON.parse(localStorage.getItem("listTodoGroup")) || [];
+        console.log("fire saga",listTodoGroup);
+        yield put(getListTodoGroupSusccess(listTodoGroup));
+    } catch (e) {
+        yield put(getListTodoGroupFail(e.message))
+    }
 }
-
+function* saveTodoSaga() {
+    const listTodo = yield select(state => state.todo.listTodo)
+    localStorage.setItem('listTodo', JSON.stringify(listTodo))
+}
+function* saveTodoGroupSaga() {
+    //console.log("fire saga");
+    const listTodoGroup = yield select(state => state.todo.listTodoGroup)
+    console.log("fire saga",listTodoGroup);
+    localStorage.setItem('listTodoGroup', JSON.stringify(listTodoGroup))
+}
+//Add and remove Todo
 export function* watchAddTodo() {
     yield takeEvery(addNewTodo.type, saveTodoSaga)
 }
 export function* watchRemoveTodo() {
     yield takeEvery(removeTodo.type, saveTodoSaga)
 }
+//Add and remove TodoGroup
+export function* watchAddTodoGroup() {
+    yield takeEvery(addNewTodoGroup.type, saveTodoGroupSaga)
+}
+export function* watchRemoveTodoGroup() {
+    yield takeEvery(removeTodoGroup.type, saveTodoGroupSaga)
+}
+//Load list todo
 export function* watchLoadTodo() {
-    yield takeEvery(getTodoList.type, loadTodoListSaga)
+    yield takeEvery(getListTodo.type, loadListTodoSaga)
+}
+//Load list todo group
+export function* watchLoadTodoGroup() {
+    yield takeEvery(getListTodoGroup.type, loadListTodoGroupSaga)
 }
