@@ -1,38 +1,33 @@
 import React from "react";
 import { Layout } from "antd";
 import "./App.css";
-import {StarOutlined,CloseCircleOutlined,ProfileOutlined,CheckCircleOutlined } from "@ant-design/icons";
 import SideBar from "./Components/SideBar/SideBar";
 import ListTodo from "./Components/Todo/ContainerListTodo/ListTodo";
-import {useSelector} from 'react-redux'
+import { useSelector } from 'react-redux'
 import DetailTodo from "./Components/DetailTodo/DetailTodo";
+import { stateSelectedMenu } from "./Redux/selector/appSelector";
 function App() {
   const items = [
-    {key:"d04" , label: "All",icon:<ProfileOutlined/>},
-    {key:"d02" , label: "Important",icon:<StarOutlined/>},
-    {key:"d05" , label: "Compeleted",icon:<CheckCircleOutlined/>},
-    {key:"d03" , label: "Uncompeleted",icon:<CloseCircleOutlined />},
+    { key: "d04", label: "All", icon: "ProfileOutlined", searchType: 'all' },
+    { key: "d02", label: "Important", icon: "StarOutlined", searchType: 'important' },
+    { key: "d05", label: "Compeleted", icon: "CheckCircleOutlined", searchType: 'compeleted' },
+    { key: "d03", label: "Uncompeleted", icon: "CloseCircleOutlined", searchType: 'uncompeleted' },
   ];
-  const {selectedMenuKey} = useSelector((state)=>({
-    selectedMenuKey: state.app.selectedMenuKey
-  }))
-  const getItemBySelectedMenuKey = () =>{
-    return items.find(item=> item.key === selectedMenuKey)
-  }
+  const selectedMenu = useSelector(stateSelectedMenu)
   return (
     <div className="App">
       <Layout>
-        <SideBar items={items}/>
+        <SideBar items={items} />
         <Layout.Content className="content">
-          {selectedMenuKey && selectedMenuKey.includes("d") &&
-            <div>
-              <ListTodo item={getItemBySelectedMenuKey()} />
+          {selectedMenu &&
+            <div >
+              <ListTodo />
             </div>
           }
         </Layout.Content>
-        <DetailTodo/>
+        <DetailTodo />
       </Layout>
-    </div>
+    </div >
   );
 }
 

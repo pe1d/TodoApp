@@ -2,12 +2,11 @@ import React from "react";
 import { Layout } from "antd";
 import "./SideBar.css"
 import MenuApp from "./Menu/MenuApp";
-import { useSelector,useDispatch } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { changeCollapseMenu } from "../../Redux/Slices/appSlice";
+import { stateCollapseMenu } from "../../Redux/selector/appSelector";
 const SideBar = ({ items }) => {
-  const {collapseMenu} = useSelector((state)=>({
-    collapseMenu: state.app.collapseMenu
-  }))
+  const collapseMenu = useSelector(stateCollapseMenu)
   const dispatch = useDispatch();
   return (
     <Layout.Sider
@@ -17,9 +16,9 @@ const SideBar = ({ items }) => {
       trigger={null}
       collapsible
       collapsed={collapseMenu}
-      onCollapse={(value)=>dispatch(changeCollapseMenu(value))}
+      onCollapse={(value) => dispatch(changeCollapseMenu(value))}
     >
-        <MenuApp items={items}/>
+      <MenuApp items={items} />
     </Layout.Sider>
   );
 };

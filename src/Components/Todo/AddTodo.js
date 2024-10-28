@@ -8,8 +8,9 @@ import { addNewTodo } from '../../Redux/Slices/todoSlice';
 //{ key: 18, nameTodo: 'Todo 18', dateCreate: "", dateTo: '09/10/2024', important: true, complete: false, description: "description todo 1", keyGroup: "" },
 const AddTodo = ({ onClick }) => {
     const [dateAction, setDateAction] = useState(false);
+    const [count, setCount] = useState(0)
     const [todo, setTodo] = useState({
-        key: 't-' + (new Date().getTime().toString()),
+        key: 't-' + (new Date().getTime().toString()) + count,
         nameTodo: '',
         dateCreate: moment().format('YYYY-MM-DD HH:mm:ss'),
         dateTo: '',
@@ -20,7 +21,7 @@ const AddTodo = ({ onClick }) => {
     })
     const dispatch = useDispatch()
     const onChange = (date, dateString) => {
-        console.log(date, dateString);
+        //console.log(date, dateString);
         setTodo({ ...todo, dateTo: dateString })
     };
     //console.log("check todo", todo);
@@ -33,7 +34,11 @@ const AddTodo = ({ onClick }) => {
             alert("Due date is required value!")
             return
         }
+        setCount((count) => count + 1);
+        setTodo((todo) => ({ ...todo, key: 't-' + (new Date().getTime().toString()) + count }))
         dispatch(addNewTodo(todo));
+        setTodo({ ...todo, nameTodo: '', important: false })
+        setDateAction(false)
     }
     return (
         <>

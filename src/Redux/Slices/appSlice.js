@@ -1,24 +1,26 @@
 import { createSlice } from '@reduxjs/toolkit'
 const initialState = {
-    selectedMenuKey: "",
-    collapseMenu:false,
+    selectedMenu: { key: "d04", label: "All", icon: "ProfileOutlined", searchType: 'all' },
+    collapseMenu: false,
     collapseDetailTodo: true,
 }
 export const appSlice = createSlice({
     name: "app",
     initialState,
     reducers: {
-        changeSelectedMenuKey: (state,action)=>{
-            state.selectedMenuKey = action.payload;
+        changeSelectedMenu: (state, action) => {
+            //console.log("check payload", action.payload);
+            state.selectedMenu = action.payload;
+            state.collapseDetailTodo = true;
         },
-        changeCollapseMenu:(state, action)=>{
+        changeCollapseMenu: (state, action) => {
             state.collapseMenu = action.payload;
         },
-        changeCollapseDetailTodo:(state,action)=>{
+        changeCollapseDetailTodo: (state, action) => {
             state.collapseDetailTodo = action.payload;
         }
     }
 })
-export const { changeSelectedMenuKey,changeCollapseMenu,changeCollapseDetailTodo} = appSlice.actions;
+export const { changeSelectedMenu, changeCollapseMenu, changeCollapseDetailTodo } = appSlice.actions;
 
 export default appSlice.reducer;

@@ -3,26 +3,20 @@ import { Checkbox, Layout, Button, Input, Select } from "antd";
 import { useSelector, useDispatch } from "react-redux";
 import { changeCollapseDetailTodo } from "../../Redux/Slices/appSlice";
 import { StarFilled, StarOutlined } from "@ant-design/icons";
-import { getListTodoGroup } from "../../Redux/Slices/todoSlice";
+import { updateTodo } from "../../Redux/Slices/todoSlice";
+import { stateListTodoGroup, stateSelectTodo } from "../../Redux/selector/todoSelector";
+import { stateCollapseDetailTodo } from "../../Redux/selector/appSelector";
 
 const { TextArea } = Input;
 const DetailTodo = () => {
-  const { collapseDetailTodo, todoSelection } = useSelector((state) => ({
-    collapseDetailTodo: state.app.collapseDetailTodo,
-    todoSelection: state.todo.todoSelection
-  }))
+  const collapseDetailTodo = useSelector(stateCollapseDetailTodo)
+  const todoSelection = useSelector(stateSelectTodo)
+  const listTodoGroup = useSelector(stateListTodoGroup)
   //console.log("Check todo selection:", !todoSelection.keyGroup);
   const [todoSelectionState, setTodoSelectionState] = useState({});
-  const { listTodoGroup } = useSelector((state) => ({
-    listTodoGroup: state.todo.listTodoGroup
-  }))
   //console.log('Check change group: ', chageGroup);
   const dispatch = useDispatch();
   useEffect(() => {
-    function fetchListTodoGroup() {
-      dispatch(getListTodoGroup())
-    }
-    fetchListTodoGroup()
     setTodoSelectionState(todoSelection)
   }, [todoSelection])
   const onChangeCheckBox = (e) => {
@@ -34,8 +28,11 @@ const DetailTodo = () => {
   }
   const onChangeSelect = (value) => {
     //console.log("check e: ", value);
-
     setTodoSelectionState({ ...todoSelectionState, keyGroup: value })
+  }
+  const hanldeClickBtnUpdateCom = (event, record) => {
+    event.stopPropagation();
+    dispatch(updateTodo({ id: record.key, todoUpdate: { ...record, complete: !record.complete } }))
   }
   //console.log("check todo: ", todoSelectionState);
   return (
@@ -90,10 +87,14 @@ const DetailTodo = () => {
           />
         </div>
         <div style={{ display: 'flex', justifyContent: 'left', gap: '10px', marginTop: 15 }}>
-          <Button type={todoSelectionState.complete ? "dashed" : "primary"} size="middle">
+          <Button type={todoSelectionState.complete ? "dashed" : "primary"} size="middle"
+            onClick={(event) => hanldeClickBtnUpdateCom(event, todoSelectionState)}
+          >
             {todoSelectionState.complete ? "UnCompelete" : "Compelete"}
           </Button>
-          <Button type={todoSelectionState.complete ? "dashed" : "primary"} size="middle">
+          <Button type={todoSelectionState.complete ? "dashed" : "primary"} size="middle"
+            onClick={() => dispatch(updateTodo({ id: todoSelectionState.key, todoUpdate: todoSelectionState }))}
+          >
             Update
           </Button>
         </div>
