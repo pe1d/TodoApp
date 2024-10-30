@@ -32,7 +32,7 @@ const DetailTodo = () => {
   }
   const hanldeClickBtnUpdateCom = (event, record) => {
     event.stopPropagation();
-    dispatch(updateTodo({ id: record.key, todoUpdate: { ...record, complete: !record.complete } }))
+    dispatch(updateTodo({ ...record, complete: !record.complete }))
   }
   //console.log("check todo: ", todoSelectionState);
   return (
@@ -93,7 +93,7 @@ const DetailTodo = () => {
             {todoSelectionState.complete ? "UnCompelete" : "Compelete"}
           </Button>
           <Button type={todoSelectionState.complete ? "dashed" : "primary"} size="middle"
-            onClick={() => dispatch(updateTodo({ id: todoSelectionState.key, todoUpdate: todoSelectionState }))}
+            onClick={() => dispatch(updateTodo(todoSelectionState))}
           >
             Update
           </Button>

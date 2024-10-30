@@ -1,16 +1,14 @@
-import { Table } from 'antd';
+import { Modal, Table } from 'antd';
 import AddTodo from '../AddTodo';
-import Icon, { StarOutlined, StarFilled, CheckCircleTwoTone, UnorderedListOutlined, WarningOutlined } from '@ant-design/icons';
-import { Typography, Button } from 'antd';
+import { StarOutlined, StarFilled, CheckCircleTwoTone, WarningOutlined, DeleteOutlined } from '@ant-design/icons';
+import { Button } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import { changeCollapseDetailTodo } from '../../../Redux/Slices/appSlice';
 import { addTodoSelection, getListTodo, removeTodo, updateTodo } from '../../../Redux/Slices/todoSlice';
 import { useEffect, useState } from 'react';
 import { stateListTodo, stateSelectTodo } from '../../../Redux/selector/todoSelector';
-import IconRender from '../../Icon/IconRender';
 import { stateCollapseDetailTodo, stateSelectedMenu } from '../../../Redux/selector/appSelector';
-
-const { Title } = Typography;
+import TitleSelected from './TitleSelected';
 const ListTodo = () => {
     const dispatch = useDispatch();
     const selectedMenu = useSelector(stateSelectedMenu)
@@ -18,9 +16,16 @@ const ListTodo = () => {
     const listTodo = useSelector(stateListTodo)
     const todoSelection = useSelector(stateSelectTodo)
     const [selectedRowKey, setSelectedRowKey] = useState("")
+    const [open, setOpen] = useState(false)
+    const [todoRemove, setTodoRemove] = useState({})
     useEffect(() => {
         dispatch(getListTodo())
+        // eslint-disable-next-line
     }, [])
+    useEffect(() => {
+        //console.log("check")
+        setSelectedRowKey("")
+    }, [selectedMenu])
     //console.log("Check list todo", listTodo);
     const columns = [
         { title: 'Title', dataIndex: 'nameTodo' },
@@ -76,7 +81,7 @@ const ListTodo = () => {
                         <Button color="danger" variant="solid"
                             onClick={(e) => hanldeClickDelete(e, record)}
                         >
-                            Delete
+                            <DeleteOutlined />
                         </Button>
                     </div>
                 )
@@ -85,12 +90,14 @@ const ListTodo = () => {
     ]
     const hanldeClickBtnUpdateCom = (event, record) => {
         event.stopPropagation();
-        dispatch(updateTodo({ id: record.key, todoUpdate: { ...record, complete: !record.complete } }))
+        dispatch(updateTodo({ ...record, complete: !record.complete }))
     }
     const hanldeClickDelete = (event, record) => {
         event.stopPropagation();
-        console.log("Click delete record", record);
-        dispatch(removeTodo(record))
+        // console.log("Click delete record", record);
+        // dispatch(removeTodo(record))
+        setTodoRemove(record)
+        setOpen(true)
     }
     const handleClickRow = (record) => {
         if (collapseDetailTodo === false && todoSelection.key === record.key) {
@@ -102,21 +109,11 @@ const ListTodo = () => {
         }
         dispatch(addTodoSelection(record))
     }
+    //console.log("Check list todo on list: ", listTodo);
+
     return (
         <div className='container'>
-            <Icon type="message" style={{ fontSize: '16px', color: '#08c' }} theme="outlined"></Icon>
-            <Title level={2} style={{ color: "#1677ff", display: 'flex', gap: '20px' }}>
-                {selectedMenu && selectedMenu.icon ?
-                    <div >
-                        <IconRender selectedIcon={selectedMenu.icon} />  {selectedMenu.label}
-                    </div>
-                    :
-                    <div>
-                        <UnorderedListOutlined />  {selectedMenu.nameGroup}
-                    </div>
-                }
-
-            </Title>
+            <TitleSelected selectedMenu={selectedMenu} />
             <AddTodo />
             <Table
                 onRow={(record, rowIndex) => {
@@ -147,23 +144,38 @@ const ListTodo = () => {
                 style={{ marginTop: '20px' }}
                 expandable={{
                     expandedRowRender: (record) => (
-                        <p
+                        <div
                             style={{
                                 margin: 0,
                             }}
                         >
                             {record.description ? record.description :
-                                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 10 }}>
+                                <div style={{ display: 'flex', color: 'red', justifyContent: 'center', alignItems: 'center', gap: 10 }}>
                                     <WarningOutlined />Don't have description for this todo
                                 </div>
                             }
 
-                        </p>
+                        </div>
                     ),
                     rowExpandable: (record) => record.name !== 'Not Expandable',
                 }}
             />
-        </div>
+            <Modal
+                open={open}
+                title="Delete"
+                onCancel={() => setOpen(false)}
+                footer={[
+                    <Button key="back" onClick={() => setOpen(false)}>
+                        No
+                    </Button>,
+                    <Button key="submit" type="primary" onClick={() => { dispatch(removeTodo(todoRemove)); setOpen(false); }}>
+                        Yes
+                    </Button>,
+                ]}
+            >
+                Remove todo: {todoRemove.nameTodo}. Yes or No?
+            </Modal>
+        </div >
     )
 }
 export default ListTodo;

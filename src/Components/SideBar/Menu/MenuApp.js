@@ -68,7 +68,7 @@ const MenuApp = ({ items }) => {
         </Menu>
       </div>
       <div className="header-menu" style={{ position: 'relative' }}>
-        {addTodoGroup &&
+        {addTodoGroup && !collapseMenu &&
           <div className="box-add-todoGroup" style={{ display: 'flex', position: 'absolute', top: -50, left: 0, padding: 10, width: "100%", backgroundColor: "#FFFFFF" }}>
             <Input value={nameTodoGroup} onChange={(e) => setNameTodoGroup(e.target.value)} placeholder="Name todo group" variant="borderless">
             </Input>
@@ -76,8 +76,8 @@ const MenuApp = ({ items }) => {
           </div>
         }
         <div style={{ color: "#1677ff", cursor: "pointer", display: 'flex', alignItems: "center", gap: "10px" }}
-          onClick={() => { setAddTodoGroup(!addTodoGroup); dispatch(changeCollapseMenu(false)); }}>
-          <PlusOutlined /> {!collapseMenu ? 'Add new list' : ''}
+          onClick={() => { dispatch(changeCollapseMenu(false)); setAddTodoGroup(!addTodoGroup); }}>
+          <PlusOutlined /> {!collapseMenu ? 'Add new group todo' : ''}
         </div>
       </div>
     </>

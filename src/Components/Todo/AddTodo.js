@@ -1,16 +1,16 @@
-import { StarOutlined, StarFilled, ReloadOutlined, CalendarOutlined } from '@ant-design/icons';
+import { StarOutlined, StarFilled, CalendarOutlined } from '@ant-design/icons';
 import { Button, DatePicker, Input } from 'antd';
 import { useState } from 'react';
 import moment from 'moment';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import dayjs from 'dayjs';
 import { addNewTodo } from '../../Redux/Slices/todoSlice';
+import { stateSelectedMenu } from '../../Redux/selector/appSelector';
 //{ key: 18, nameTodo: 'Todo 18', dateCreate: "", dateTo: '09/10/2024', important: true, complete: false, description: "description todo 1", keyGroup: "" },
 const AddTodo = ({ onClick }) => {
     const [dateAction, setDateAction] = useState(false);
-    const [count, setCount] = useState(0)
     const [todo, setTodo] = useState({
-        key: 't-' + (new Date().getTime().toString()) + count,
+        key: '',
         nameTodo: '',
         dateCreate: moment().format('YYYY-MM-DD HH:mm:ss'),
         dateTo: '',
@@ -19,6 +19,7 @@ const AddTodo = ({ onClick }) => {
         description: '',
         keyGroup: ''
     })
+    const selectedMenu = useSelector(stateSelectedMenu);
     const dispatch = useDispatch()
     const onChange = (date, dateString) => {
         //console.log(date, dateString);
@@ -34,10 +35,14 @@ const AddTodo = ({ onClick }) => {
             alert("Due date is required value!")
             return
         }
-        setCount((count) => count + 1);
-        setTodo((todo) => ({ ...todo, key: 't-' + (new Date().getTime().toString()) + count }))
+        if (selectedMenu.keyGroup) {
+            dispatch(addNewTodo({ ...todo, keyGroup: selectedMenu.keyGroup }));
+            setTodo({ ...todo, nameTodo: '', important: false, dateTo: '' })
+            setDateAction(false)
+            return
+        }
         dispatch(addNewTodo(todo));
-        setTodo({ ...todo, nameTodo: '', important: false })
+        setTodo({ ...todo, nameTodo: '', important: false, dateTo: '' })
         setDateAction(false)
     }
     return (
@@ -56,8 +61,8 @@ const AddTodo = ({ onClick }) => {
                             onClick={() => setTodo({ ...todo, important: !todo.important })}>
                             {!todo.important ? <StarOutlined /> : <StarFilled style={{ color: "#1677ff", fontSize: '1.2rem' }} />}
                         </div>
-                        <ReloadOutlined />
-                        <p style={{ cursor: 'pointer' }}>Add description</p>
+                        {/* <ReloadOutlined />
+                        <p style={{ cursor: 'pointer' }}>Add description</p> */}
                     </div>
                     <div className='btn-add'>
                         <Button onClick={() => handleClickbtnAddTodo()}>Add</Button>

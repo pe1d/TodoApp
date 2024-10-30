@@ -51,6 +51,7 @@ export const todoSlice = createSlice({
             state.isLoading = false
         },
         removeTodo: (state, action) => {
+            console.log("Check action on remove: ", action.payload);
 
         },
         removeTodoSuccess: (state, action) => {
@@ -63,23 +64,53 @@ export const todoSlice = createSlice({
 
         },
         updateTodo: (state, action) => {
-            const { id, todoUpdate } = action.payload;
-            //console.log("Check payload", action.payload);
-            const index = state.listTodo.findIndex(item => item.key === id);
+        },
+        updateTodoSuccess: (state, action) => {
+            const todoUpdate = action.payload;
+            //console.log("Check todo update on redux: ", todoUpdate);
+            const index = state.listTodo.findIndex(item => item.key === todoUpdate.key);
             if (index >= 0) {
                 //console.log("check");
                 state.listTodo[index] = todoUpdate
                 state.todoSelection = todoUpdate
             }
-            //alert("update todo group success!")
         },
-        // add and remove group todo
+        updateTodoFail: () => {
+
+        },
+        // add, update and remove group todo
         addNewTodoGroup: (state, action) => {
             state.listTodoGroup.push(action.payload)
             alert("Add new todo group success!")
         },
+        updateTodoGroup: (state, action) => {
+            console.log("Check action on redux(todo group): ", action);
+        },
+        updateTodoGroupSuccess: (state, action) => {
+            const todoGroupUpdate = action.payload;
+            //console.log("Check todo group before update:", todoGroupUpdate);
+
+            const index = state.listTodoGroup.findIndex(item => item.keyGroup === todoGroupUpdate.keyGroup);
+            //console.log("Check todo group index:", index);
+            if (index >= 0) {
+                state.listTodoGroup[index] = todoGroupUpdate;
+            }
+            //console.log("Check when update todo group Success: ", state.listTodoGroup);
+
+        },
+        updateTodoGroupFail: () => {
+            alert("Fail update todo group!")
+        },
         removeTodoGroup: (state, action) => {
-            state.listTodoGroup.filter(item => item.keyGroup !== action.payload)
+
+        },
+        removeTodoGroupSuccess: (state, action) => {
+            console.log("check action pay load in redux: ", action.payload);
+            const list = state.listTodoGroup.filter(item => item.keyGroup !== action.payload.keyGroup)
+            state.listTodoGroup = list;
+        },
+        removeTodoGroupFail: (state, action) => {
+
         },
         //add todo selection
         addTodoSelection: (state, action) => {
@@ -87,11 +118,14 @@ export const todoSlice = createSlice({
         }
     }
 })
-export const { getListTodo, getListTodoFail, getListTodoSusccess,
+export const {
+    getListTodo, getListTodoFail, getListTodoSusccess,
     addNewTodo, removeTodo, updateTodo,
     addTodoSelection, addNewTodoGroup, removeTodoGroup,
     getListTodoGroup, getListTodoGroupSusccess, getListTodoGroupFail,
-    addNewTodoSuccess, addNewTodoFail, removeTodoSuccess, removeTodoFail
+    addNewTodoSuccess, addNewTodoFail, removeTodoSuccess, removeTodoFail,
+    updateTodoSuccess, updateTodoFail, updateTodoGroup, updateTodoGroupSuccess,
+    updateTodoGroupFail, removeTodoGroupSuccess, removeTodoGroupFail
 } = todoSlice.actions;
 
 export default todoSlice.reducer;

@@ -1,6 +1,7 @@
 import { createSelector } from "reselect";
 const selectTodo = (state) => state.todo
 const selectListTodo = (state) => state.todo.listTodo;
+//const selectListTodoGroup = (state) => state.todo.listTodoGroup;
 const selectAppSelectedMenu = (state) => state.app.selectedMenu;
 const selectSelectionTodo = (state) => state.todo.todoSelection;
 export const stateListTodo = createSelector(
@@ -28,6 +29,7 @@ export const stateListTodo = createSelector(
 
     }
 )
+
 export const stateSelectTodo = createSelector(
     [selectListTodo, selectSelectionTodo],
     (listTodo, todoSelection) => {
@@ -37,6 +39,7 @@ export const stateSelectTodo = createSelector(
 
     }
 )
+
 export const stateListTodoGroup = createSelector(
     [selectTodo],
     (todo) => {

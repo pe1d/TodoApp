@@ -6,7 +6,7 @@ const rootSaga = function* () {
         fork(watchTodo.watchLoadTodo), fork(watchTodo.watchLoadTodoGroup),
         fork(watchTodo.watchAddTodo), fork(watchTodo.watchRemoveTodo),
         fork(watchTodo.watchAddTodoGroup), fork(watchTodo.watchRemoveTodoGroup),
-        fork(watchTodo.watchUpdateTodo)
+        fork(watchTodo.watchUpdateTodo), fork(watchTodo.watchUpdateTodoGroup)
     ])
 }
 
