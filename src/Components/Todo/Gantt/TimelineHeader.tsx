@@ -1,5 +1,5 @@
 import React from "react";
-import { ViewMode } from "./TaskTimeline";
+import { ViewMode } from "./IssueTimeline";
 
 interface TimelineHeaderProps {
   viewMode: ViewMode;
@@ -62,24 +62,24 @@ export const TimelineHeader: React.FC<TimelineHeaderProps> = ({
   };
 
   const timeUnits = generateTimeUnits();
-  const cellWidth = viewMode === "day" ? 60 : viewMode === "month" ? 80 : 100;
+  const cellWidth = viewMode === "day" ? 60 : viewMode === "month" ? 100 : 120;
 
   const containerStyle: React.CSSProperties = {
     minHeight: "40px",
-    backgroundColor: "#f9fafb", // Tailwind: bg-gray-50
-    borderBottom: "1px solid #e5e7eb", // Tailwind: border-b border-gray-200
-    position: "sticky",
-    top: 0,
+    backgroundColor: "white",
+    borderBottom: "1px solid #e5e7eb",
+
     zIndex: 10,
     overflow: "hidden",
     width: "fit-content",
   };
-  console.log("Check: ", timeUnits);
 
   const innerStyle: React.CSSProperties = {
     display: "flex",
     width: `${timeUnits.length * cellWidth}px`,
     height: "40px",
+    position: "sticky",
+    top: 0,
   };
 
   return (

@@ -1,23 +1,23 @@
 import React from "react";
-import { Task, ViewMode } from "./TaskTimeline.tsx";
+import { Issue, ViewMode } from "./IssueTimeline.tsx";
 import { GanttBar } from "./GanttBar.tsx";
 
-interface TaskRowProps {
-  task: Task;
+interface IssueRowProps {
+  issue: Issue;
   index: number;
   viewMode: ViewMode;
   currentDate: Date;
-  onUpdateTask: (taskId: string, updates: Partial<Task>) => void;
+  onUpdateIssue: (issueId: string, updates: Partial<Issue>) => void;
 }
 
-export const TaskRow: React.FC<TaskRowProps> = ({
-  task,
+export const IssueRow: React.FC<IssueRowProps> = ({
+  issue,
   index,
   viewMode,
   currentDate,
-  onUpdateTask,
+  onUpdateIssue,
 }) => {
-  const cellWidth = viewMode === "day" ? 60 : viewMode === "month" ? 80 : 100;
+  const cellWidth = viewMode === "day" ? 60 : viewMode === "month" ? 100 : 120;
 
   const getTimelineStart = () => {
     const startDate = new Date(currentDate);
@@ -68,15 +68,11 @@ export const TaskRow: React.FC<TaskRowProps> = ({
   const totalWidth = totalCells * cellWidth;
 
   const rowStyle: React.CSSProperties = {
-    height: "40px", // Tailwind: h-16
-    borderBottom: "1px solid #e5e7eb", // Tailwind: border-b border-gray-200
+    height: "40px",
     position: "relative",
-    backgroundColor: index % 2 === 0 ? "#ffffff" : "rgba(249, 250, 251, 0.5)", // Tailwind: bg-white / bg-gray-50/50
   };
 
-  const absoluteContainerStyle: React.CSSProperties = {
-    position: "absolute",
-    inset: "0",
+  const containerStyle: React.CSSProperties = {
     width: `${totalWidth}px`,
   };
 
@@ -87,14 +83,14 @@ export const TaskRow: React.FC<TaskRowProps> = ({
   };
 
   const cellStyle: React.CSSProperties = {
-    borderRight: "1px solid #e5e7eb", // Tailwind: border-r border-gray-200
+    borderRight: "1px solid #e5e7eb",
     height: "100%",
     width: `${cellWidth}px`,
   };
 
   return (
     <div style={rowStyle}>
-      <div style={absoluteContainerStyle}>
+      <div style={containerStyle}>
         {/* Grid lines */}
         <div style={gridLineWrapperStyle}>
           {Array.from({ length: totalCells }, (_, i) => (
@@ -104,12 +100,12 @@ export const TaskRow: React.FC<TaskRowProps> = ({
 
         {/* Gantt Bar */}
         <GanttBar
-          task={task}
+          issue={issue}
           timelineStart={timelineStart}
           timelineEnd={timelineEnd}
           totalWidth={totalWidth}
           viewMode={viewMode}
-          onUpdateTask={onUpdateTask}
+          onUpdateIssue={onUpdateIssue}
         />
       </div>
     </div>

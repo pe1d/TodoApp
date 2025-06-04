@@ -1,14 +1,14 @@
 import React, { useState, useRef, useEffect } from "react";
 import styled from "styled-components";
-import { Task, ViewMode } from "./TaskTimeline";
+import { Issue, ViewMode } from "./IssueTimeline";
 
 interface GanttBarProps {
-  task: Task;
+  issue: Issue;
   timelineStart: Date;
   timelineEnd: Date;
   totalWidth: number;
   viewMode: ViewMode;
-  onUpdateTask: (taskId: string, updates: Partial<Task>) => void;
+  onUpdateIssue: (issueId: string, updates: Partial<Issue>) => void;
 }
 
 const BarContainer = styled.div<{
@@ -90,12 +90,12 @@ const Tooltip = styled.div`
 `;
 
 export const GanttBar: React.FC<GanttBarProps> = ({
-  task,
+  issue,
   timelineStart,
   timelineEnd,
   totalWidth,
   viewMode,
-  onUpdateTask,
+  onUpdateIssue,
 }) => {
   const [isDragging, setIsDragging] = useState<
     "move" | "resize-left" | "resize-right" | null
@@ -128,8 +128,8 @@ export const GanttBar: React.FC<GanttBarProps> = ({
     );
   };
 
-  const startPos = getPositionFromDate(task.startDate);
-  const endPos = getPositionFromDate(task.endDate);
+  const startPos = getPositionFromDate(issue.startDate);
+  const endPos = getPositionFromDate(issue.endDate);
   const width = Math.max(20, endPos - startPos);
 
   const handleMouseDown = (
@@ -140,8 +140,8 @@ export const GanttBar: React.FC<GanttBarProps> = ({
     setIsDragging(action);
     setDragStart({
       x: e.clientX,
-      startDate: new Date(task.startDate),
-      endDate: new Date(task.endDate),
+      startDate: new Date(issue.startDate),
+      endDate: new Date(issue.endDate),
     });
   };
 
@@ -163,23 +163,23 @@ export const GanttBar: React.FC<GanttBarProps> = ({
           break;
         case "resize-left":
           newStartDate = new Date(dragStart.startDate.getTime() + deltaTime);
-          if (newStartDate >= task.endDate) {
+          if (newStartDate >= issue.endDate) {
             newStartDate = new Date(
-              task.endDate.getTime() - 24 * 60 * 60 * 1000
+              issue.endDate.getTime() - 24 * 60 * 60 * 1000
             );
           }
           break;
         case "resize-right":
           newEndDate = new Date(dragStart.endDate.getTime() + deltaTime);
-          if (newEndDate <= task.startDate) {
+          if (newEndDate <= issue.startDate) {
             newEndDate = new Date(
-              task.startDate.getTime() + 24 * 60 * 60 * 1000
+              issue.startDate.getTime() + 24 * 60 * 60 * 1000
             );
           }
           break;
       }
 
-      onUpdateTask(task.id, {
+      onUpdateIssue(issue.id, {
         startDate: newStartDate,
         endDate: newEndDate,
       });
@@ -199,19 +199,19 @@ export const GanttBar: React.FC<GanttBarProps> = ({
   }, [
     isDragging,
     dragStart,
-    task,
+    issue,
     timelineStart,
     timelineEnd,
     totalWidth,
-    onUpdateTask,
+    onUpdateIssue,
   ]);
 
   const formatDateRange = () => {
-    const startStr = task.startDate.toLocaleDateString("vi-VN", {
+    const startStr = issue.startDate.toLocaleDateString("vi-VN", {
       day: "2-digit",
       month: "2-digit",
     });
-    const endStr = task.endDate.toLocaleDateString("vi-VN", {
+    const endStr = issue.endDate.toLocaleDateString("vi-VN", {
       day: "2-digit",
       month: "2-digit",
     });
@@ -225,12 +225,12 @@ export const GanttBar: React.FC<GanttBarProps> = ({
       ref={barRef}
       left={Math.max(0, startPos)}
       width={width}
-      color={task.color || "#3b82f6"}
+      color={issue.color || "#3b82f6"}
       isDragging={!!isDragging}
       onMouseDown={(e) => handleMouseDown(e, "move")}
     >
-      <ProgressBar progress={task.progress || 0} />
-      <Content>{width > 100 ? task.name : ""}</Content>
+      <ProgressBar progress={issue.progress || 0} />
+      <Content>{width > 100 ? issue.name : ""}</Content>
       <ResizeHandle
         left
         onMouseDown={(e) => {
@@ -245,7 +245,7 @@ export const GanttBar: React.FC<GanttBarProps> = ({
         }}
       />
       <Tooltip>
-        {task.name} ({formatDateRange()})
+        {issue.name} ({formatDateRange()})
       </Tooltip>
     </BarContainer>
   );

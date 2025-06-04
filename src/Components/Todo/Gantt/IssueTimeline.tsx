@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { Button, Select, Table } from "antd";
+import { Button, Select } from "antd";
 import {
   PlusOutlined,
   LeftOutlined,
@@ -8,7 +8,7 @@ import {
 } from "@ant-design/icons";
 import styled from "styled-components";
 import { TimelineHeader } from "./TimelineHeader.tsx";
-import { TaskRow } from "./TaskRow.tsx";
+import { IssueRow } from "./IssueRow.tsx";
 import { DateEditor } from "./DateEditer.tsx";
 
 const { Option } = Select;
@@ -25,8 +25,6 @@ const Header = styled.div`
   align-items: center;
   justify-content: space-between;
   padding: 16px;
-  background-color: white;
-  border-bottom: 1px solid #f0f0f0;
 `;
 
 const HeaderLeft = styled.div`
@@ -67,7 +65,8 @@ const TimelineContainer = styled.div`
 
 const MainContent = styled.div`
   height: 100%;
-  display: flex;
+  // display: flex;
+  overflow: auto;
 `;
 
 const TableSection = styled.div`
@@ -75,22 +74,29 @@ const TableSection = styled.div`
   border-right: 1px solid #f0f0f0;
   display: flex;
   flex-direction: column;
+  flex: 1;
 `;
 
 const TableHeader = styled.div`
   height: 40px;
   border-bottom: 1px solid #f0f0f0;
-  background-color: #fafafa;
+  background-color: white;
   display: flex;
+  width: fit-content;
+  position: sticky;
+  top: 0px;
+  z-index: 101;
 `;
 
-const TableColumn = styled.div<{ width: number }>`
+const TableColumn = styled.div<{ width: number; frozen: boolean }>`
   width: ${(props) => props.width}px;
   border-right: 1px solid #f0f0f0;
   display: flex;
   align-items: center;
   padding: 0 16px;
-
+  position: ${(props) => (props.frozen ? "sticky" : "")};
+  z-index: 100;
+  background-color: white;
   span {
     font-weight: 500;
     color: #595959;
@@ -99,23 +105,27 @@ const TableColumn = styled.div<{ width: number }>`
 
 const TableBody = styled.div`
   flex: 1;
-  overflow-y: auto;
+  height: fit-content;
+  background-color: white;
 `;
 
-const TableRow = styled.div<{ isEven: boolean }>`
+const TableRow = styled.div`
   min-height: 40px;
   border-bottom: 1px solid #f0f0f0;
   display: flex;
-  background-color: ${(props) => (props.isEven ? "white" : "#fafafa")};
+  width: fit-content;
+  background-color: white;
 `;
 
-const TableCell = styled.div<{ width: number }>`
+const TableCell = styled.div<{ width: number; frozen: boolean }>`
   width: ${(props) => props.width}px;
   border-right: 1px solid #f0f0f0;
   display: flex;
   align-items: center;
   padding: 0 16px;
-
+  position: ${(props) => (props.frozen ? "sticky" : "")};
+  background-color: white;
+  z-index: 100;
   div {
     font-size: 14px;
     color: #1f1f1f;
@@ -128,10 +138,10 @@ const TableCell = styled.div<{ width: number }>`
 
 const ChartSection = styled.div`
   flex: 1;
-  overflow: auto;
+  // overflow: auto;
 `;
 
-export interface Task {
+export interface Issue {
   id: string;
   name: string;
   startDate: Date;
@@ -144,23 +154,25 @@ export interface Column {
   name: string;
   dataIndex: string;
   width: number;
-  render?: (value: any, task: Task) => React.ReactNode;
+  frozen: boolean;
+  render?: (value: any, issue: Issue) => React.ReactNode;
 }
 
 export type ViewMode = "day" | "month" | "year";
 
 const defaultColumns: Column[] = [
-  { name: "Tên việc", dataIndex: "name", width: 200 },
+  { name: "Tên việc", dataIndex: "name", width: 200, frozen: true },
   {
     name: "Bắt đầu",
     dataIndex: "startDate",
     width: 120,
-    render: (value: Date, task: Task) => (
+    frozen: true,
+    render: (value: Date, issue: Issue) => (
       <DateEditor
         date={value}
         onDateChange={(newDate) => {
-          if ((task as any)._updateTask) {
-            (task as any)._updateTask(task.id, { startDate: newDate });
+          if ((issue as any)._updateIssue) {
+            (issue as any)._updateIssue(issue.id, { startDate: newDate });
           }
         }}
       />
@@ -170,12 +182,13 @@ const defaultColumns: Column[] = [
     name: "Hạn",
     dataIndex: "endDate",
     width: 120,
-    render: (value: Date, task: Task) => (
+    frozen: true,
+    render: (value: Date, issue: Issue) => (
       <DateEditor
         date={value}
         onDateChange={(newDate) => {
-          if ((task as any)._updateTask) {
-            (task as any)._updateTask(task.id, { endDate: newDate });
+          if ((issue as any)._updateIssue) {
+            (issue as any)._updateIssue(issue.id, { endDate: newDate });
           }
         }}
       />
@@ -183,12 +196,12 @@ const defaultColumns: Column[] = [
   },
 ];
 
-const initialTasks: Task[] = [
+const initialIssues: Issue[] = [
   {
     id: "1",
     name: "Thiết kế giao diện",
     startDate: new Date(2025, 5, 3),
-    endDate: new Date(2025, 5, 14),
+    endDate: new Date(2025, 5, 25, 12),
     color: "#3b82f6",
     progress: 75,
   },
@@ -218,34 +231,36 @@ const initialTasks: Task[] = [
   },
 ];
 
-interface TaskTimelineProps {
+interface IssueTimelineProps {
   columns?: Column[];
 }
 
-export const TaskTimeline: React.FC<TaskTimelineProps> = ({
+export const IssueTimeline: React.FC<IssueTimelineProps> = ({
   columns = defaultColumns,
 }) => {
-  const [tasks, setTasks] = useState<Task[]>(initialTasks);
-  const [viewMode, setViewMode] = useState<ViewMode>("month");
+  const [issues, setIssues] = useState<Issue[]>(initialIssues);
+  const [viewMode, setViewMode] = useState<ViewMode>("day");
   const [currentDate, setCurrentDate] = useState(new Date());
   const timelineRef = useRef<HTMLDivElement>(null);
 
-  const updateTask = (taskId: string, updates: Partial<Task>) => {
-    setTasks((prev) =>
-      prev.map((task) => (task.id === taskId ? { ...task, ...updates } : task))
+  const updateIssue = (issueId: string, updates: Partial<Issue>) => {
+    setIssues((prev) =>
+      prev.map((issue) =>
+        issue.id === issueId ? { ...issue, ...updates } : issue
+      )
     );
   };
 
-  const addNewTask = () => {
-    const newTask: Task = {
+  const addNewIssue = () => {
+    const newIssue: Issue = {
       id: Date.now().toString(),
-      name: "Task mới",
+      name: "Issue mới",
       startDate: new Date(),
       endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
       color: "#6366f1",
       progress: 0,
     };
-    setTasks((prev) => [...prev, newTask]);
+    setIssues((prev) => [...prev, newIssue]);
   };
 
   const navigateTime = (direction: "prev" | "next") => {
@@ -268,12 +283,12 @@ export const TaskTimeline: React.FC<TaskTimelineProps> = ({
     setCurrentDate(newDate);
   };
 
-  const formatCellValue = (task: Task, column: Column) => {
-    const value = task[column.dataIndex as keyof Task];
+  const formatCellValue = (issue: Issue, column: Column) => {
+    const value = issue[column.dataIndex as keyof Issue];
 
     if (column.render) {
-      const taskWithUpdate = { ...task, _updateTask: updateTask };
-      return column.render(value, taskWithUpdate);
+      const issueWithUpdate = { ...issue, _updateIssue: updateIssue };
+      return column.render(value, issueWithUpdate);
     }
 
     if (value instanceof Date) {
@@ -283,15 +298,15 @@ export const TaskTimeline: React.FC<TaskTimelineProps> = ({
     return String(value || "");
   };
 
-  const totalColumnsWidth = columns.reduce((sum, col) => sum + col.width, 0);
-
+  // const totalColumnsWidth = columns.reduce((sum, col) => sum + col.width, 0);
+  let frozenColWidth = 0;
   return (
     <Container>
       <Header>
         <HeaderLeft>
           <Title>
             <CalendarOutlined style={{ fontSize: "20px", color: "#595959" }} />
-            <h1>Task Timeline</h1>
+            <h1>Issue Timeline</h1>
           </Title>
 
           <NavigationControls>
@@ -325,51 +340,78 @@ export const TaskTimeline: React.FC<TaskTimelineProps> = ({
             <Option value="year">Theo năm</Option>
           </Select>
 
-          <Button type="primary" icon={<PlusOutlined />} onClick={addNewTask}>
-            Thêm Task
+          <Button type="primary" icon={<PlusOutlined />} onClick={addNewIssue}>
+            Thêm Issue
           </Button>
         </HeaderRight>
       </Header>
 
       <TimelineContainer>
         <MainContent>
-          <TableSection style={{ width: totalColumnsWidth }}>
+          <TableSection>
             <TableHeader>
-              {columns.map((column) => (
-                <TableColumn key={column.dataIndex} width={column.width}>
-                  <span>{column.name}</span>
-                </TableColumn>
-              ))}
+              {columns.map((column) => {
+                const currentLeft = column.frozen ? frozenColWidth : undefined;
+                if (column.frozen) {
+                  frozenColWidth += column.width;
+                }
+                return (
+                  <TableColumn
+                    key={column.dataIndex}
+                    width={column.width}
+                    frozen={column.frozen}
+                    style={{ left: currentLeft }}
+                  >
+                    <span>{column.name}</span>
+                  </TableColumn>
+                );
+              })}
+              <TimelineHeader viewMode={viewMode} currentDate={currentDate} />
             </TableHeader>
 
             <TableBody>
-              {tasks.map((task, index) => (
-                <TableRow key={task.id} isEven={index % 2 === 0}>
-                  {columns.map((column) => (
-                    <TableCell key={column.dataIndex} width={column.width}>
-                      <div>{formatCellValue(task, column)}</div>
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))}
+              {issues.map((issue, index) => {
+                let frozenColBodyWidth = 0;
+
+                return (
+                  <TableRow key={issue.id}>
+                    {columns.map((column) => {
+                      const currentLeft = column.frozen
+                        ? frozenColBodyWidth
+                        : undefined;
+                      if (column.frozen) {
+                        frozenColBodyWidth += column.width;
+                      }
+                      return (
+                        <TableCell
+                          style={{ left: currentLeft }}
+                          key={column.dataIndex}
+                          width={column.width}
+                          frozen={column.frozen}
+                        >
+                          <div>{formatCellValue(issue, column)}</div>
+                        </TableCell>
+                      );
+                    })}
+                    <ChartSection ref={timelineRef}>
+                      <div
+                        style={{ position: "relative", width: "fit-content" }}
+                      >
+                        <IssueRow
+                          key={issue.id}
+                          issue={issue}
+                          index={index}
+                          viewMode={viewMode}
+                          currentDate={currentDate}
+                          onUpdateIssue={updateIssue}
+                        />
+                      </div>
+                    </ChartSection>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </TableSection>
-
-          <ChartSection ref={timelineRef}>
-            <TimelineHeader viewMode={viewMode} currentDate={currentDate} />
-            <div style={{ position: "relative", width: "fit-content" }}>
-              {tasks.map((task, index) => (
-                <TaskRow
-                  key={task.id}
-                  task={task}
-                  index={index}
-                  viewMode={viewMode}
-                  currentDate={currentDate}
-                  onUpdateTask={updateTask}
-                />
-              ))}
-            </div>
-          </ChartSection>
         </MainContent>
       </TimelineContainer>
     </Container>
