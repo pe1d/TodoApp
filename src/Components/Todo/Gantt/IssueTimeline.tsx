@@ -395,7 +395,11 @@ export const IssueTimeline: React.FC<IssueTimelineProps> = ({
                     })}
                     <ChartSection ref={timelineRef}>
                       <div
-                        style={{ position: "relative", width: "fit-content" }}
+                        style={{
+                          position: "relative",
+                          width: "fit-content",
+                          height: "100%",
+                        }}
                       >
                         <IssueRow
                           key={issue.id}

@@ -68,7 +68,7 @@ export const IssueRow: React.FC<IssueRowProps> = ({
   const totalWidth = totalCells * cellWidth;
 
   const rowStyle: React.CSSProperties = {
-    height: "40px",
+    height: "100%",
     position: "relative",
   };
 

@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import styled from "styled-components";
 import { Issue, ViewMode } from "./IssueTimeline";
+import { Tooltip } from "antd";
 
 interface GanttBarProps {
   issue: Issue;
@@ -52,7 +53,11 @@ const Content = styled.div`
   color: white;
   font-size: 12px;
   font-weight: 500;
-  overflow: hidden;
+  span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 `;
 
 const ResizeHandle = styled.div<{ left?: boolean }>`
@@ -70,25 +75,6 @@ const ResizeHandle = styled.div<{ left?: boolean }>`
   }
 `;
 
-const Tooltip = styled.div`
-  position: absolute;
-  top: -32px;
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: #1f2937;
-  color: white;
-  font-size: 12px;
-  padding: 4px 8px;
-  border-radius: 4px;
-  white-space: nowrap;
-  opacity: 0;
-  transition: opacity 0.2s ease;
-  z-index: 20;
-  ${BarContainer}:hover & {
-    opacity: 1;
-  }
-`;
-
 export const GanttBar: React.FC<GanttBarProps> = ({
   issue,
   timelineStart,
@@ -100,6 +86,7 @@ export const GanttBar: React.FC<GanttBarProps> = ({
   const [isDragging, setIsDragging] = useState<
     "move" | "resize-left" | "resize-right" | null
   >(null);
+  const [isHover, setIsHover] = useState<boolean>(false);
   const [dragStart, setDragStart] = useState({
     x: 0,
     startDate: new Date(),
@@ -210,10 +197,16 @@ export const GanttBar: React.FC<GanttBarProps> = ({
     const startStr = issue.startDate.toLocaleDateString("vi-VN", {
       day: "2-digit",
       month: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
     });
     const endStr = issue.endDate.toLocaleDateString("vi-VN", {
       day: "2-digit",
       month: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
     });
     return `${startStr} - ${endStr}`;
   };
@@ -221,32 +214,38 @@ export const GanttBar: React.FC<GanttBarProps> = ({
   if (startPos >= totalWidth || endPos <= 0) return null;
 
   return (
-    <BarContainer
-      ref={barRef}
-      left={Math.max(0, startPos)}
-      width={width}
-      color={issue.color || "#3b82f6"}
-      isDragging={!!isDragging}
-      onMouseDown={(e) => handleMouseDown(e, "move")}
+    <Tooltip
+      open={isDragging === null && isHover}
+      title={`${issue.name} (${formatDateRange()})`}
     >
-      <ProgressBar progress={issue.progress || 0} />
-      <Content>{width > 100 ? issue.name : ""}</Content>
-      <ResizeHandle
-        left
-        onMouseDown={(e) => {
-          e.stopPropagation();
-          handleMouseDown(e, "resize-left");
-        }}
-      />
-      <ResizeHandle
-        onMouseDown={(e) => {
-          e.stopPropagation();
-          handleMouseDown(e, "resize-right");
-        }}
-      />
-      <Tooltip>
-        {issue.name} ({formatDateRange()})
-      </Tooltip>
-    </BarContainer>
+      <BarContainer
+        ref={barRef}
+        left={Math.max(0, startPos)}
+        width={width}
+        color={issue.color || "#3b82f6"}
+        isDragging={!!isDragging}
+        onMouseDown={(e) => handleMouseDown(e, "move")}
+        onMouseEnter={() => setIsHover(true)}
+        onMouseLeave={() => setIsHover(false)}
+      >
+        <ProgressBar progress={issue.progress || 0} />
+        <Content>
+          <span>{issue.name}</span>
+        </Content>
+        <ResizeHandle
+          left
+          onMouseDown={(e) => {
+            e.stopPropagation();
+            handleMouseDown(e, "resize-left");
+          }}
+        />
+        <ResizeHandle
+          onMouseDown={(e) => {
+            e.stopPropagation();
+            handleMouseDown(e, "resize-right");
+          }}
+        />
+      </BarContainer>
+    </Tooltip>
   );
 };
