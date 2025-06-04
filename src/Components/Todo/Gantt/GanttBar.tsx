@@ -24,7 +24,6 @@ const BarContainer = styled.div<{
   border-radius: 8px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
   cursor: move;
-  transition: all 0.15s ease-in-out;
   left: ${(props) => props.left}px;
   width: ${(props) => props.width}px;
   background-color: ${(props) => props.color};
@@ -93,16 +92,10 @@ export const GanttBar: React.FC<GanttBarProps> = ({
     endDate: new Date(),
   });
   const barRef = useRef<HTMLDivElement>(null);
-  console.log("Check: totalWidth", totalWidth);
-
   const getPositionFromDate = (date: Date): number => {
     const ts = timelineStart.getTime();
-    console.log("Check: bat dau", timelineStart);
-
     const te = timelineEnd.getTime();
-    console.log("Check: ket thuc", timelineEnd);
     const d = date.getTime();
-    console.log("Check: ngay hien tai", date);
     const progress = (d - ts) / (te - ts);
     return Math.max(0, Math.min(1, progress)) * totalWidth;
   };
