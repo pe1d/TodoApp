@@ -1,15 +1,6 @@
 import React from "react";
-import { ViewMode } from "./IssueTimeline";
 
-interface TimelineHeaderProps {
-  viewMode: ViewMode;
-  currentDate: Date;
-}
-
-export const TimelineHeader: React.FC<TimelineHeaderProps> = ({
-  viewMode,
-  currentDate,
-}) => {
+export const TimelineHeader = ({ viewMode, currentDate }) => {
   const generateTimeUnits = () => {
     const units = [];
     const startDate = new Date(currentDate);
@@ -56,6 +47,8 @@ export const TimelineHeader: React.FC<TimelineHeaderProps> = ({
           });
         }
         break;
+      default:
+        break;
     }
 
     return units;
@@ -64,7 +57,7 @@ export const TimelineHeader: React.FC<TimelineHeaderProps> = ({
   const timeUnits = generateTimeUnits();
   const cellWidth = viewMode === "day" ? 60 : viewMode === "month" ? 100 : 120;
 
-  const containerStyle: React.CSSProperties = {
+  const containerStyle = {
     minHeight: "40px",
     backgroundColor: "white",
     borderBottom: "1px solid #e5e7eb",
@@ -74,7 +67,7 @@ export const TimelineHeader: React.FC<TimelineHeaderProps> = ({
     width: "fit-content",
   };
 
-  const innerStyle: React.CSSProperties = {
+  const innerStyle = {
     display: "flex",
     width: `${timeUnits.length * cellWidth}px`,
     height: "40px",
@@ -100,25 +93,25 @@ export const TimelineHeader: React.FC<TimelineHeaderProps> = ({
 
           const isCurrent = isToday || isCurrentMonth || isCurrentYear;
 
-          const unitStyle: React.CSSProperties = {
+          const unitStyle = {
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
-            borderRight: "1px solid #e5e7eb", // Tailwind: border-gray-200
+            borderRight: "1px solid #e5e7eb",
             width: `${cellWidth}px`,
             minWidth: `${cellWidth}px`,
-            backgroundColor: isCurrent ? "#eff6ff" : "transparent", // Tailwind: bg-blue-50
-            color: isCurrent ? "#1d4ed8" : "#4b5563", // Tailwind: text-blue-700 / text-gray-600
+            backgroundColor: isCurrent ? "#eff6ff" : "transparent",
+            color: isCurrent ? "#1d4ed8" : "#4b5563",
           };
 
-          const labelStyle: React.CSSProperties = {
-            fontWeight: isCurrent ? 600 : 500, // font-semibold / font-medium
+          const labelStyle = {
+            fontWeight: isCurrent ? 600 : 500,
           };
 
-          const sublabelStyle: React.CSSProperties = {
+          const sublabelStyle = {
             fontSize: "12px",
-            color: "#6b7280", // Tailwind: text-gray-500
+            color: "#6b7280",
           };
 
           return (

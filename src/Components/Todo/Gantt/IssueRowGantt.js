@@ -1,24 +1,15 @@
 import React from "react";
-import { Issue, ViewMode } from "./IssueTimeline.tsx";
-import { GanttBar } from "./GanttBar.tsx";
+import { GanttBar } from "./GanttBar";
 
-interface IssueRowProps {
-  issue: Issue;
-  index: number;
-  viewMode: ViewMode;
-  currentDate: Date;
-  onUpdateIssue: (issueId: string, updates: Partial<Issue>) => void;
-}
-
-export const IssueRow: React.FC<IssueRowProps> = ({
+export const IssueRowGantt = ({
   issue,
   index,
   viewMode,
   currentDate,
   onUpdateIssue,
+  updateIssue,
 }) => {
   const cellWidth = viewMode === "day" ? 60 : viewMode === "month" ? 100 : 120;
-
   const getTimelineStart = () => {
     const startDate = new Date(currentDate);
 
@@ -34,6 +25,8 @@ export const IssueRow: React.FC<IssueRowProps> = ({
         startDate.setFullYear(startDate.getFullYear() - 2);
         startDate.setMonth(0);
         startDate.setDate(1);
+        break;
+      default:
         break;
     }
 
@@ -55,6 +48,8 @@ export const IssueRow: React.FC<IssueRowProps> = ({
       case "year":
         endDate.setFullYear(endDate.getFullYear() + 10);
         break;
+      default:
+        break;
     }
 
     // Xóa giờ phút giây mili giây
@@ -67,22 +62,22 @@ export const IssueRow: React.FC<IssueRowProps> = ({
   const totalCells = viewMode === "day" ? 30 : viewMode === "month" ? 12 : 10;
   const totalWidth = totalCells * cellWidth;
 
-  const rowStyle: React.CSSProperties = {
+  const rowStyle = {
     height: "100%",
     position: "relative",
   };
 
-  const containerStyle: React.CSSProperties = {
+  const containerStyle = {
     width: `${totalWidth}px`,
   };
 
-  const gridLineWrapperStyle: React.CSSProperties = {
+  const gridLineWrapperStyle = {
     position: "absolute",
     inset: "0",
     display: "flex",
   };
 
-  const cellStyle: React.CSSProperties = {
+  const cellStyle = {
     borderRight: "1px solid #e5e7eb",
     height: "100%",
     width: `${cellWidth}px`,
@@ -105,7 +100,8 @@ export const IssueRow: React.FC<IssueRowProps> = ({
           timelineEnd={timelineEnd}
           totalWidth={totalWidth}
           viewMode={viewMode}
-          onUpdateIssue={onUpdateIssue}
+          onUpdateIssueTime={onUpdateIssue}
+          onBlur={updateIssue}
         />
       </div>
     </div>

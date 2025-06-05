@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import { Button, Select } from "antd";
 import {
   PlusOutlined,
@@ -7,9 +7,9 @@ import {
   CalendarOutlined,
 } from "@ant-design/icons";
 import styled from "styled-components";
-import { TimelineHeader } from "./TimelineHeader.tsx";
-import { IssueRow } from "./IssueRow.tsx";
-import { DateEditor } from "./DateEditer.tsx";
+import { TimelineHeader } from "./TimelineHeader.js";
+import { DateEditor } from "./DateEditer.js";
+import { IssueRowTimeline } from "./IssueRowTimeline.js";
 
 const { Option } = Select;
 
@@ -88,15 +88,16 @@ const TableHeader = styled.div`
   z-index: 101;
 `;
 
-const TableColumn = styled.div<{ width: number; frozen: boolean }>`
+const TableColumn = styled.div`
   width: ${(props) => props.width}px;
   border-right: 1px solid #f0f0f0;
   display: flex;
   align-items: center;
   padding: 0 16px;
-  position: ${(props) => (props.frozen ? "sticky" : "")};
-  z-index: 100;
+  position: ${(props) => (props.frozen ? "sticky" : "static")};
+  z-index: ${(props) => (props.frozen ? 100 : "auto")};
   background-color: white;
+
   span {
     font-weight: 500;
     color: #595959;
@@ -109,70 +110,19 @@ const TableBody = styled.div`
   background-color: white;
 `;
 
-const TableRow = styled.div`
-  min-height: 40px;
-  border-bottom: 1px solid #f0f0f0;
-  display: flex;
-  width: fit-content;
-  background-color: white;
-`;
-
-const TableCell = styled.div<{ width: number; frozen: boolean }>`
-  width: ${(props) => props.width}px;
-  border-right: 1px solid #f0f0f0;
-  display: flex;
-  align-items: center;
-  padding: 0 16px;
-  position: ${(props) => (props.frozen ? "sticky" : "")};
-  background-color: white;
-  z-index: 100;
-  div {
-    font-size: 14px;
-    color: #1f1f1f;
-    width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-`;
-
-const ChartSection = styled.div`
-  flex: 1;
-  // overflow: auto;
-`;
-
-export interface Issue {
-  id: string;
-  name: string;
-  startDate: Date;
-  endDate: Date;
-  color?: string;
-  progress?: number;
-}
-
-export interface Column {
-  name: string;
-  dataIndex: string;
-  width: number;
-  frozen: boolean;
-  render?: (value: any, issue: Issue) => React.ReactNode;
-}
-
-export type ViewMode = "day" | "month" | "year";
-
-const defaultColumns: Column[] = [
+const defaultColumns = [
   { name: "Tên việc", dataIndex: "name", width: 200, frozen: true },
   {
     name: "Bắt đầu",
     dataIndex: "startDate",
     width: 120,
     frozen: true,
-    render: (value: Date, issue: Issue) => (
+    render: (value, issue) => (
       <DateEditor
         date={value}
         onDateChange={(newDate) => {
-          if ((issue as any)._updateIssue) {
-            (issue as any)._updateIssue(issue.id, { startDate: newDate });
+          if (issue._updateIssue) {
+            issue._updateIssue(issue.id, { startDate: newDate });
           }
         }}
       />
@@ -183,12 +133,12 @@ const defaultColumns: Column[] = [
     dataIndex: "endDate",
     width: 120,
     frozen: true,
-    render: (value: Date, issue: Issue) => (
+    render: (value, issue) => (
       <DateEditor
         date={value}
         onDateChange={(newDate) => {
-          if ((issue as any)._updateIssue) {
-            (issue as any)._updateIssue(issue.id, { endDate: newDate });
+          if (issue._updateIssue) {
+            issue._updateIssue(issue.id, { endDate: newDate });
           }
         }}
       />
@@ -196,54 +146,49 @@ const defaultColumns: Column[] = [
   },
 ];
 
-const initialIssues: Issue[] = [
+const initialIssues = [
   {
     id: "1",
     name: "Thiết kế giao diện",
-    startDate: new Date(2025, 5, 3),
-    endDate: new Date(2025, 5, 25, 12),
+    startDate: new Date(2025, 5, 3).valueOf(),
+    endDate: new Date(2025, 5, 25, 12).valueOf(),
     color: "#3b82f6",
     progress: 75,
   },
   {
     id: "2",
     name: "Phát triển Backend",
-    startDate: new Date(2025, 5, 4),
-    endDate: new Date(2025, 5, 7),
+    startDate: new Date(2025, 5, 4).valueOf(),
+    endDate: new Date(2025, 5, 7).valueOf(),
     color: "#10b981",
     progress: 40,
   },
   {
     id: "3",
     name: "Tích hợp API",
-    startDate: new Date(2025, 5, 2),
-    endDate: new Date(2025, 5, 7),
+    startDate: new Date(2025, 5, 2).valueOf(),
+    endDate: new Date(2025, 5, 7).valueOf(),
     color: "#f59e0b",
     progress: 20,
   },
   {
     id: "4",
     name: "Testing và Debug",
-    startDate: new Date(2025, 5, 6),
-    endDate: new Date(2025, 5, 12),
+    startDate: new Date(2025, 5, 6).valueOf(),
+    endDate: new Date(2025, 5, 12).valueOf(),
     color: "#ef4444",
     progress: 0,
   },
 ];
 
-interface IssueTimelineProps {
-  columns?: Column[];
-}
-
-export const IssueTimeline: React.FC<IssueTimelineProps> = ({
-  columns = defaultColumns,
-}) => {
-  const [issues, setIssues] = useState<Issue[]>(initialIssues);
-  const [viewMode, setViewMode] = useState<ViewMode>("day");
+export const IssueTimeline = ({ columns = defaultColumns }) => {
+  const [issues, setIssues] = useState(initialIssues);
+  const [viewMode, setViewMode] = useState("day");
   const [currentDate, setCurrentDate] = useState(new Date());
-  const timelineRef = useRef<HTMLDivElement>(null);
 
-  const updateIssue = (issueId: string, updates: Partial<Issue>) => {
+  const updateIssue = (issueId, updates) => {
+    console.log("Check: ", issueId, updates);
+
     setIssues((prev) =>
       prev.map((issue) =>
         issue.id === issueId ? { ...issue, ...updates } : issue
@@ -252,18 +197,18 @@ export const IssueTimeline: React.FC<IssueTimelineProps> = ({
   };
 
   const addNewIssue = () => {
-    const newIssue: Issue = {
+    const newIssue = {
       id: Date.now().toString(),
       name: "Issue mới",
-      startDate: new Date(),
-      endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      startDate: new Date().valueOf(),
+      endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).valueOf(),
       color: "#6366f1",
       progress: 0,
     };
     setIssues((prev) => [...prev, newIssue]);
   };
 
-  const navigateTime = (direction: "prev" | "next") => {
+  const navigateTime = (direction) => {
     const newDate = new Date(currentDate);
 
     switch (viewMode) {
@@ -278,24 +223,10 @@ export const IssueTimeline: React.FC<IssueTimelineProps> = ({
           newDate.getFullYear() + (direction === "next" ? 1 : -1)
         );
         break;
+      default:
+        break;
     }
-
     setCurrentDate(newDate);
-  };
-
-  const formatCellValue = (issue: Issue, column: Column) => {
-    const value = issue[column.dataIndex as keyof Issue];
-
-    if (column.render) {
-      const issueWithUpdate = { ...issue, _updateIssue: updateIssue };
-      return column.render(value, issueWithUpdate);
-    }
-
-    if (value instanceof Date) {
-      return value.toLocaleDateString("vi-VN");
-    }
-
-    return String(value || "");
   };
 
   // const totalColumnsWidth = columns.reduce((sum, col) => sum + col.width, 0);
@@ -371,47 +302,15 @@ export const IssueTimeline: React.FC<IssueTimelineProps> = ({
 
             <TableBody>
               {issues.map((issue, index) => {
-                let frozenColBodyWidth = 0;
-
                 return (
-                  <TableRow key={issue.id}>
-                    {columns.map((column) => {
-                      const currentLeft = column.frozen
-                        ? frozenColBodyWidth
-                        : undefined;
-                      if (column.frozen) {
-                        frozenColBodyWidth += column.width;
-                      }
-                      return (
-                        <TableCell
-                          style={{ left: currentLeft }}
-                          key={column.dataIndex}
-                          width={column.width}
-                          frozen={column.frozen}
-                        >
-                          <div>{formatCellValue(issue, column)}</div>
-                        </TableCell>
-                      );
-                    })}
-                    <ChartSection ref={timelineRef}>
-                      <div
-                        style={{
-                          position: "relative",
-                          width: "fit-content",
-                          height: "100%",
-                        }}
-                      >
-                        <IssueRow
-                          key={issue.id}
-                          issue={issue}
-                          index={index}
-                          viewMode={viewMode}
-                          currentDate={currentDate}
-                          onUpdateIssue={updateIssue}
-                        />
-                      </div>
-                    </ChartSection>
-                  </TableRow>
+                  <IssueRowTimeline
+                    issue={issue}
+                    columns={columns}
+                    index={index}
+                    viewMode={viewMode}
+                    currentDate={currentDate}
+                    updateIssue={updateIssue}
+                  />
                 );
               })}
             </TableBody>

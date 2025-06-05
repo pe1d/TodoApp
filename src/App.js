@@ -6,7 +6,7 @@ import ListTodo from "./Components/Todo/ContainerListTodo/ListTodo";
 import { useSelector } from "react-redux";
 import DetailTodo from "./Components/DetailTodo/DetailTodo";
 import { stateSelectedMenu } from "./Redux/selector/appSelector";
-import { IssueTimeline } from "./Components/Todo/Gantt/IssueTimeline.tsx";
+import { IssueTimeline } from "./Components/Todo/Gantt/IssueTimeline";
 function App() {
   const items = [
     { key: "d04", label: "All", icon: "ProfileOutlined", searchType: "all" },

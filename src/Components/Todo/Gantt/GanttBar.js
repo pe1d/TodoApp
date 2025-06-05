@@ -1,23 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import styled from "styled-components";
-import { Issue, ViewMode } from "./IssueTimeline";
 import { Tooltip } from "antd";
 
-interface GanttBarProps {
-  issue: Issue;
-  timelineStart: Date;
-  timelineEnd: Date;
-  totalWidth: number;
-  viewMode: ViewMode;
-  onUpdateIssue: (issueId: string, updates: Partial<Issue>) => void;
-}
-
-const BarContainer = styled.div<{
-  left: number;
-  width: number;
-  isDragging: boolean;
-  color: string;
-}>`
+const BarContainer = styled.div`
   position: absolute;
   top: 4px;
   height: 32px;
@@ -31,7 +16,7 @@ const BarContainer = styled.div<{
   z-index: ${(props) => (props.isDragging ? 10 : 1)};
 `;
 
-const ProgressBar = styled.div<{ progress: number }>`
+const ProgressBar = styled.div`
   position: absolute;
   top: 0;
   left: 0;
@@ -59,7 +44,7 @@ const Content = styled.div`
   }
 `;
 
-const ResizeHandle = styled.div<{ left?: boolean }>`
+const ResizeHandle = styled.div`
   position: absolute;
   top: 0;
   ${(props) => (props.left ? "left: 0;" : "right: 0;")}
@@ -74,48 +59,43 @@ const ResizeHandle = styled.div<{ left?: boolean }>`
   }
 `;
 
-export const GanttBar: React.FC<GanttBarProps> = ({
+export const GanttBar = ({
   issue,
   timelineStart,
   timelineEnd,
   totalWidth,
   viewMode,
-  onUpdateIssue,
+  onUpdateIssueTime,
+  onBlur,
 }) => {
-  const [isDragging, setIsDragging] = useState<
-    "move" | "resize-left" | "resize-right" | null
-  >(null);
-  const [isHover, setIsHover] = useState<boolean>(false);
+  const [isDragging, setIsDragging] = useState(null);
+  const [isHover, setIsHover] = useState(false);
   const [dragStart, setDragStart] = useState({
     x: 0,
     startDate: new Date(),
     endDate: new Date(),
   });
-  const barRef = useRef<HTMLDivElement>(null);
-  const getPositionFromDate = (date: Date): number => {
+  const barRef = useRef(null);
+  const getPositionFromDate = (date) => {
     const ts = timelineStart.getTime();
     const te = timelineEnd.getTime();
-    const d = date.getTime();
+    const d = new Date(date).getTime();
     const progress = (d - ts) / (te - ts);
     return Math.max(0, Math.min(1, progress)) * totalWidth;
   };
 
-  const getDateFromPosition = (position: number): Date => {
+  const getDateFromPosition = (position) => {
     const progress = Math.max(0, Math.min(1, position / totalWidth));
     return new Date(
       timelineStart.getTime() +
         progress * (timelineEnd.getTime() - timelineStart.getTime())
-    );
+    ).valueOf();
   };
 
   const startPos = getPositionFromDate(issue.startDate);
   const endPos = getPositionFromDate(issue.endDate);
   const width = Math.max(20, endPos - startPos);
-
-  const handleMouseDown = (
-    e: React.MouseEvent,
-    action: "move" | "resize-left" | "resize-right"
-  ) => {
+  const handleMouseDown = (e, action) => {
     e.preventDefault();
     setIsDragging(action);
     setDragStart({
@@ -126,43 +106,53 @@ export const GanttBar: React.FC<GanttBarProps> = ({
   };
 
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
+    const handleMouseMove = (e) => {
       if (!isDragging) return;
       const deltaX = e.clientX - dragStart.x;
       const deltaTime =
         (deltaX / totalWidth) *
         (timelineEnd.getTime() - timelineStart.getTime());
 
-      let newStartDate = new Date(dragStart.startDate);
-      let newEndDate = new Date(dragStart.endDate);
+      let newStartDate = new Date(dragStart.startDate).valueOf();
+      let newEndDate = new Date(dragStart.endDate).valueOf();
 
       switch (isDragging) {
         case "move":
-          newStartDate = new Date(dragStart.startDate.getTime() + deltaTime);
-          newEndDate = new Date(dragStart.endDate.getTime() + deltaTime);
+          newStartDate = new Date(
+            dragStart.startDate.getTime() + deltaTime
+          ).valueOf();
+          newEndDate = new Date(
+            dragStart.endDate.getTime() + deltaTime
+          ).valueOf();
           break;
         case "resize-left":
-          newStartDate = new Date(dragStart.startDate.getTime() + deltaTime);
+          newStartDate = new Date(
+            dragStart.startDate.getTime() + deltaTime
+          ).valueOf();
           if (newStartDate >= issue.endDate) {
             newStartDate = new Date(
-              issue.endDate.getTime() - 24 * 60 * 60 * 1000
-            );
+              issue.endDate - 24 * 60 * 60 * 1000
+            ).valueOf();
           }
           break;
         case "resize-right":
-          newEndDate = new Date(dragStart.endDate.getTime() + deltaTime);
+          newEndDate = new Date(
+            dragStart.endDate.getTime() + deltaTime
+          ).valueOf();
           if (newEndDate <= issue.startDate) {
             newEndDate = new Date(
-              issue.startDate.getTime() + 24 * 60 * 60 * 1000
-            );
+              issue.startDate + 24 * 60 * 60 * 1000
+            ).valueOf();
           }
+          break;
+        default:
           break;
       }
 
-      onUpdateIssue(issue.id, {
+      onUpdateIssueTime({
         startDate: newStartDate,
         endDate: newEndDate,
-      });
+      }); // Chi update state de tranh goi api nhieu lan
     };
 
     const handleMouseUp = () => setIsDragging(null);
@@ -183,18 +173,18 @@ export const GanttBar: React.FC<GanttBarProps> = ({
     timelineStart,
     timelineEnd,
     totalWidth,
-    onUpdateIssue,
+    onUpdateIssueTime,
   ]);
 
   const formatDateRange = () => {
-    const startStr = issue.startDate.toLocaleDateString("vi-VN", {
+    const startStr = new Date(issue.startDate).toLocaleDateString("vi-VN", {
       day: "2-digit",
       month: "2-digit",
       hour: "2-digit",
       minute: "2-digit",
       hour12: false,
     });
-    const endStr = issue.endDate.toLocaleDateString("vi-VN", {
+    const endStr = new Date(issue.endDate).toLocaleDateString("vi-VN", {
       day: "2-digit",
       month: "2-digit",
       hour: "2-digit",
@@ -220,6 +210,15 @@ export const GanttBar: React.FC<GanttBarProps> = ({
         onMouseDown={(e) => handleMouseDown(e, "move")}
         onMouseEnter={() => setIsHover(true)}
         onMouseLeave={() => setIsHover(false)}
+        onMouseUp={
+          () =>
+            onBlur &&
+            onBlur(issue.id, {
+              startDate: getDateFromPosition(startPos),
+              endDate: getDateFromPosition(endPos),
+            })
+          //update bang cach goi saga => goi api chi vao lan cuoi
+        }
       >
         <ProgressBar progress={issue.progress || 0} />
         <Content>

@@ -1,7 +1,6 @@
 import React from "react";
 import { DatePicker } from "antd";
 import styled from "styled-components";
-import type { Dayjs } from "dayjs";
 import dayjs from "dayjs";
 
 const StyledDatePicker = styled(DatePicker)`
@@ -15,20 +14,14 @@ const StyledDatePicker = styled(DatePicker)`
   }
 `;
 
-interface DateEditorProps {
-  date: Date;
-  onDateChange: (date: Date) => void;
-  placeholder?: string;
-}
-
-export const DateEditor: React.FC<DateEditorProps> = ({
+export const DateEditor = ({
   date,
   onDateChange,
   placeholder = "Chọn ngày",
 }) => {
-  const handleDateChange = (dateValue: Dayjs | null) => {
+  const handleDateChange = (dateValue) => {
     if (dateValue) {
-      onDateChange(dateValue.toDate());
+      onDateChange(dateValue.valueOf()); // update bien cuc bo tuong ung goi
     }
   };
 
